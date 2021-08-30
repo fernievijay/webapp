@@ -10,7 +10,13 @@ pipeline {
               echo "PATH = $(PATH)"
               echo "M2_HOME = $(M2_HOME)"
            '''   
-        
+      }
+    }
+    
+    stage ('check secrets') {
+      steps {
+        sh 'docker run dxa4481/trufflehog --json https://github.com/fernievijay/webapp.git > trufflehog'
+        sh 'cat trufflehog'
       }
     }
     stage ('build') {
