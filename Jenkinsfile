@@ -4,18 +4,20 @@ pipeline {
     maven "Maven"
   }
   stages {
-    stage ('initialize') {
+    stage ('Initialize') {
       steps {
         sh '''
-              echo "PATH = $(PATH)"
-              echo "M2_HOME = $(M2_HOME)"
-           '''   
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+            ''' 
       }
     }
     
-    stage ('build') {
+    stage ('Check-Git-Secrets') {
       steps {
-        sh 'mvn clean package'
+        sh 'rm trufflehog || true'
+        sh 'docker run gesellix/trufflehog --json https://github.com/cehkunal/webapp.git > trufflehog'
+        sh 'cat trufflehog'
       }
     }
     
@@ -27,10 +29,6 @@ pipeline {
            }       
     }
     
-    stage ('DAST') {
-      steps {
-        sh ' "sudo docker run -it owasp/zap2docker-stable zap-baseline.py -t http://18.224.190.133:8080/webapp/" || true'     
-      }
-    }  
+
   }
 }
